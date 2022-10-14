@@ -64,8 +64,13 @@ PressureManager::PressureManager(SensorData* sensor_ptr, uint16_t max_torque) {
     // Values are PWM 12bit (0-1000) for TCC solenoid
     int16_t tc_pwm_map[7*5] = {
     /*               0   2000  4000  5000  7500  10000  15000   <- mBar */
-    /*   0C */       0,   480,  960, 1280, 1920,  2560,  4096,
-    /*  30C */       0,   560, 1040, 1280, 1920,  2560,  4096,
+    //*   0C */       0,   480,  960, 1280, 1920,  2560,  4096,
+    //*  30C */       0,   560, 1040, 1280, 1920,  2560,  4096,
+    //*  60C */       0,   640, 1120, 1280, 1920,  2560,  4096,
+    //*  90C */       0,   640, 1120, 1280, 1920,  2560,  4096,
+    //* 120C */       0,   640, 1120, 1280, 1920,  2560,  4096,
+    /*   0C */       0,   450,  930, 1235, 1875,  2530,  4060,
+    /*  30C */       0,   520, 1000, 1245, 1885,  2540,  4070,
     /*  60C */       0,   640, 1120, 1280, 1920,  2560,  4096,
     /*  90C */       0,   640, 1120, 1280, 1920,  2560,  4096,
     /* 120C */       0,   640, 1120, 1280, 1920,  2560,  4096,
@@ -117,8 +122,10 @@ PressureManager::PressureManager(SensorData* sensor_ptr, uint16_t max_torque) {
     /* Clutch grp  K1    K2    K3    B1   B2 */
     /* -20C */     600, 1620,  860,  600, 820,
     /*   5C */     300,  600,  440,  380, 400,
-    /*  25C */     180,  240,  180,  220, 180,
-    /*  60C */     160,  140,  160,  180, 120
+    /*  25C */     180,  240,  180,  220, 178,/*trying this to make B2 let go just a touch slower on 3-4 upshift*/
+    /*  60C */     160,  140,  160,  180, 118
+    /*  25C */    // 180,  240,  180,  220, 180,
+    /*  60C */    // 160,  140,  160,  180, 120
     };
     hold2_time_map->add_data(hold2_map, 5*4);
     this->gb_max_torque = max_torque;
@@ -283,7 +290,7 @@ void PressureManager::make_hold3_data(ShiftPhase* dest, ShiftPhase* prev, ShiftC
     const AdaptationCell* cell = this->adapt_map->get_adapt_cell(sensor_data, change);
     dest->spc_pressure = 650;
     dest->hold_time += cell->fill_time_adder;
-    dest->mpc_pressure = 650;
+    dest->mpc_pressure = 660;
 }
 
 void PressureManager::make_torque_data(ShiftPhase* dest, ShiftPhase* prev, ShiftCharacteristics chars, ProfileGearChange change, uint16_t curr_mpc) {
@@ -304,7 +311,7 @@ void PressureManager::make_torque_data(ShiftPhase* dest, ShiftPhase* prev, Shift
     switch (change) {
         case ProfileGearChange::ONE_TWO: // Prefilling K1
             dest->hold_time = hold2_time_map->get_value(1, this->sensor_data->atf_temp);
-            dest->spc_pressure = 1200;
+            dest->spc_pressure = 900;
             break;
         case ProfileGearChange::FIVE_FOUR:
             dest->hold_time = hold2_time_map->get_value(1, this->sensor_data->atf_temp);
@@ -313,7 +320,7 @@ void PressureManager::make_torque_data(ShiftPhase* dest, ShiftPhase* prev, Shift
         case ProfileGearChange::TWO_ONE:
         case ProfileGearChange::FOUR_FIVE: // Prefilling B1
             dest->hold_time = hold2_time_map->get_value(4, this->sensor_data->atf_temp);
-            dest->spc_pressure = 1300;
+            dest->spc_pressure = 1500;
             break;
         case ProfileGearChange::TWO_THREE: // Prefilling K2
             dest->hold_time = hold2_time_map->get_value(2, this->sensor_data->atf_temp);
@@ -327,12 +334,13 @@ void PressureManager::make_torque_data(ShiftPhase* dest, ShiftPhase* prev, Shift
         case ProfileGearChange::FOUR_THREE: // Prefilling B2
         default:
             dest->hold_time = hold2_time_map->get_value(5, this->sensor_data->atf_temp);
-            dest->spc_pressure = 1400;
+            dest->spc_pressure = 1300;
+            //dest->spc_pressure = 1200;
             break;
     }
     const AdaptationCell* cell = this->adapt_map->get_adapt_cell(sensor_data, change);
     dest->spc_pressure += cell->fill_pressure_mbar;
-    dest->mpc_pressure = dest->spc_pressure+(curr_mpc/1.2);
+    dest->mpc_pressure = dest->spc_pressure+(curr_mpc/1.0);
 }
 
 void PressureManager::make_overlap_data(ShiftPhase* dest, ShiftPhase* prev, ShiftCharacteristics chars, ProfileGearChange change, uint16_t curr_mpc) {

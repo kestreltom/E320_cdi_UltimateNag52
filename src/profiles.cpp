@@ -78,7 +78,8 @@ void AbstractProfile::reload_data() {
 
 AgilityProfile::AgilityProfile(bool is_diesel) : AbstractProfile(
         is_diesel,
-        "WINTER", 
+        //"WINTER",
+        "AGILITY",  
         MAP_NAME_A_DIESEL_UPSHIFT, 
         MAP_NAME_A_DIESEL_DOWNSHIFT,
         MAP_NAME_A_PETROL_UPSHIFT, 
@@ -118,7 +119,7 @@ GearboxDisplayGear AgilityProfile::get_display_gear(GearboxGear target, GearboxG
 
 
 ShiftCharacteristics AgilityProfile::get_shift_characteristics(ProfileGearChange requested, SensorData* sensors) {
-    float dp = ((float)(sensors->pedal_pos*10)/250.0f);
+    float dp = ((float)(sensors->pedal_pos*10)/340.0f);
     if (dp > 10) {
         dp = 10;
     }
@@ -153,8 +154,10 @@ bool AgilityProfile::should_downshift(GearboxGear current_gear, SensorData* sens
 
 TccLockupBounds AgilityProfile::get_tcc_lockup_bounds(SensorData* sensors, GearboxGear curr_gear) {
     return TccLockupBounds {
+     //   .max_slip_rpm = (int)MAX(70, sensors->static_torque),
+     //   .min_slip_rpm = (int)MAX(20, sensors->static_torque*0.25)
         .max_slip_rpm = (int)MAX(70, sensors->static_torque),
-        .min_slip_rpm = (int)MAX(10, sensors->static_torque*0.25)
+        .min_slip_rpm = (int)MAX(15, sensors->static_torque/2)
     };
 }
 
@@ -176,7 +179,7 @@ ComfortProfile::ComfortProfile(bool is_diesel) : AbstractProfile(
 ShiftCharacteristics ComfortProfile::get_shift_characteristics(ProfileGearChange requested, SensorData* sensors) {
     return ShiftCharacteristics {
         .target_d_rpm = 30,
-        .shift_speed = 2.0,
+        .shift_speed = .7,
     };
 }
 
@@ -227,8 +230,8 @@ bool ComfortProfile::should_downshift(GearboxGear current_gear, SensorData* sens
 
 TccLockupBounds ComfortProfile::get_tcc_lockup_bounds(SensorData* sensors, GearboxGear curr_gear) {
     return TccLockupBounds {
-        .max_slip_rpm = 50,
-        .min_slip_rpm = 10
+        .max_slip_rpm = 60,
+        .min_slip_rpm = 20
     };
 }
 
@@ -318,7 +321,7 @@ StandardProfile::StandardProfile(bool is_diesel) : AbstractProfile(
 ShiftCharacteristics StandardProfile::get_shift_characteristics(ProfileGearChange requested, SensorData* sensors) {
     return ShiftCharacteristics {
         .target_d_rpm = 50,
-        .shift_speed = 5.0,
+        .shift_speed = 4.0,
     };
 }
 
@@ -364,11 +367,11 @@ bool StandardProfile::should_upshift(GearboxGear current_gear, SensorData* senso
     int rpm_threshold = 0;
     // Load (idx) vs pedal
     if (current_gear == GearboxGear::First) {
-        rpm_threshold = 2200;
+        rpm_threshold = 1900;
     } else if (current_gear == GearboxGear::Second) {
-        rpm_threshold = 2100;
+        rpm_threshold = 1800;
     } else if (current_gear == GearboxGear::Third) {
-        rpm_threshold = 2000;
+        rpm_threshold = 1700;
     } else if (current_gear == GearboxGear::Fourth) {
         rpm_threshold = 1500;
     }
@@ -404,8 +407,10 @@ bool StandardProfile::should_downshift(GearboxGear current_gear, SensorData* sen
 
 TccLockupBounds StandardProfile::get_tcc_lockup_bounds(SensorData* sensors, GearboxGear curr_gear) {
     return TccLockupBounds {
-        .max_slip_rpm = (int)MAX(50, sensors->static_torque),
-        .min_slip_rpm = (int)MAX(1, sensors->static_torque/2)
+        .max_slip_rpm = (int)MAX(60, sensors->static_torque),
+        .min_slip_rpm = (int)MAX(10, sensors->static_torque/2)
+        //.max_slip_rpm = (int)MAX(50, sensors->static_torque),
+        //.min_slip_rpm = (int)MAX(1, sensors->static_torque/2)
     };
 }
 
