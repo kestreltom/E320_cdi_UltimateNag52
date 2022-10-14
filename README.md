@@ -1,4 +1,4 @@
-This is the /mod branch of this repository. This is a repository cloned from: https://github.com/rnd-ash/ultimate-nag52-fw/tree/e88f2b89fd which is a historical repository of: https://github.com/rnd-ash/ultimate-nag52-fw. Three files in the /src directory have been modified in order to better suit the 722.6 transmission on my 2006 E320 cdi. Thes files are:
+This is the /mod branch of this repository. This is a repository cloned from: https://github.com/rnd-ash/ultimate-nag52-fw/tree/e88f2b89fd which is a historical repository of: https://github.com/rnd-ash/ultimate-nag52-fw. Three files in the /src directory have been modified in order to better suit the 722.6 transmission on my 2006 E320 cdi. These files are:
 pressure_manager.cpp
 profiles.cpp
 torque_convertr.cpp
