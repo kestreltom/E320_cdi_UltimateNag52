@@ -4,5 +4,5 @@ profiles.cpp;
 torque_convertr.cpp;
 If you wish to clone this repository, or do a Git pull be my guest!
 If you are cloning into vscode go to branch control and checkout to "mod" or "origin/mod"
-you can then build this modified version of the source code and upload the binaries to your tcu
+you can then build this modified version of the source code and upload the binaries to your tcu. 
 If you want to test the un-modified version, in vscode check out to the "main" branch and build and upload from there. 
